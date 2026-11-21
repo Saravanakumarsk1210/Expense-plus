@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "index.html",
+          "manifest.json",
+          "sw.js",
+          "icon-192.png",
+          "icon-512.png",
+          "logo.png",
+          "logo.svg",
+          "EP_logo.webp",
+          "favicon.png"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "server.js"
+    }
+  ]
+}

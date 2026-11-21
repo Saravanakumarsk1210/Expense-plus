@@ -1,0 +1,117 @@
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
+
+// SVG for Expense Plus Icon
+const createSvg = (size) => `
+<svg width="${size}" height="${size}" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#1e1b4b" />
+      <stop offset="100%" stop-color="#064e3b" />
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="50%" stop-color="#06b6d4" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <linearGradient id="plusGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#38bdf8" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+
+  <!-- Outer ring accent -->
+  <rect x="12" y="12" width="488" height="488" rx="116" stroke="white" stroke-opacity="0.08" stroke-width="4" />
+
+  <!-- Inner glowing credit card / wallet graphic -->
+  <g filter="url(#shadow)">
+    <!-- Main Card Body -->
+    <rect x="80" y="140" width="352" height="232" rx="32" fill="url(#cardGrad)" fill-opacity="0.95" />
+    <rect x="80" y="140" width="352" height="232" rx="32" stroke="white" stroke-opacity="0.25" stroke-width="2" />
+    
+    <!-- Card Chip / EMV accent -->
+    <rect x="120" y="180" width="54" height="42" rx="10" fill="#fef08a" fill-opacity="0.9" />
+    <line x1="120" y1="201" x2="174" y2="201" stroke="#ca8a04" stroke-width="2" />
+    <line x1="147" y1="180" x2="147" y2="222" stroke="#ca8a04" stroke-width="2" />
+
+    <!-- Wave / Signal lines -->
+    <path d="M190 192 A12 12 0 0 1 190 210" stroke="white" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.8"/>
+    <path d="M198 186 A20 20 0 0 1 198 216" stroke="white" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.6"/>
+
+    <!-- Dynamic Expense Plus Chart Line overlay -->
+    <path d="M110 320 L180 280 L250 300 L320 240 L390 260" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+    <circle cx="320" cy="240" r="7" fill="white" />
+    <circle cx="390" cy="260" r="7" fill="#fef08a" />
+  </g>
+
+  <!-- Big Glowing Plus Badge -->
+  <g filter="url(#glow)">
+    <circle cx="370" cy="150" r="54" fill="#0f172a" />
+    <circle cx="370" cy="150" r="50" fill="url(#plusGrad)" />
+    <!-- White Plus Sign -->
+    <path d="M370 125 V175 M345 150 H395" stroke="white" stroke-width="12" stroke-linecap="round" />
+  </g>
+
+  <!-- Subtle Currency Symbol '₹' in bottom-left inside card -->
+  <text x="120" y="340" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="34" font-weight="900" fill="white" opacity="0.9">₹</text>
+
+  <!-- Title Text 'EXPENSE+' at bottom -->
+  <text x="256" y="440" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="38" font-weight="800" fill="white" text-anchor="middle" letter-spacing="4">EXPENSE<tspan fill="#34d399">+</tspan></text>
+</svg>
+`;
+
+async function generateAll() {
+  console.log('Generating high-res PWA icons and logos...');
+  const svg512 = Buffer.from(createSvg(512));
+
+  // 1. icon-512.png
+  await sharp(svg512)
+    .resize(512, 512)
+    .png()
+    .toFile(path.join(__dirname, 'icon-512.png'));
+  console.log('✓ icon-512.png created');
+
+  // 2. icon-192.png
+  await sharp(svg512)
+    .resize(192, 192)
+    .png()
+    .toFile(path.join(__dirname, 'icon-192.png'));
+  console.log('✓ icon-192.png created');
+
+  // 3. logo.png (Landscape / Balanced Emblem)
+  await sharp(svg512)
+    .resize(256, 256)
+    .png()
+    .toFile(path.join(__dirname, 'logo.png'));
+  console.log('✓ logo.png created');
+
+  // 4. favicon.png
+  await sharp(svg512)
+    .resize(64, 64)
+    .png()
+    .toFile(path.join(__dirname, 'favicon.png'));
+  console.log('✓ favicon.png created');
+
+  // Also write raw SVG logo for crisp scalable rendering
+  fs.writeFileSync(path.join(__dirname, 'logo.svg'), createSvg(512));
+  console.log('✓ logo.svg created');
+
+  console.log('🎉 All icons successfully generated!');
+}
+
+generateAll().catch(err => {
+  console.error('Error generating icons:', err);
+  process.exit(1);
+});

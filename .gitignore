@@ -1,0 +1,15 @@
+# Dependencies
+node_modules/
+
+# Environment Variables & Secrets (CRITICAL: Do not commit to GitHub)
+.env
+.env*.local
+
+# Logs and system files
+*.log
+.DS_Store
+Thumbs.db
+.system_generated/
+
+# Reference folder (Local only, not part of deployed app)
+REFERENCE FOR FRONTEND/
