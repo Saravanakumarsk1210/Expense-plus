@@ -24,11 +24,17 @@ async function migrate() {
       notes TEXT DEFAULT '',
       date DATE NOT NULL,
       time VARCHAR(16) DEFAULT '12:00',
+      quantity INTEGER DEFAULT 1,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `;
-  console.log('[Migration] expenses table ready.');
+
+  // Ensure quantity column exists if table was created previously
+  await sql`
+    ALTER TABLE expenses ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 1;
+  `;
+  console.log('[Migration] expenses table ready with quantity support.');
 
   // Indexes for query performance
   await sql`

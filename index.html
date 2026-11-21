@@ -140,18 +140,6 @@
 
       <!-- Action Buttons -->
       <div class="flex items-center space-x-1.5 shrink-0">
-        <!-- Quick View Switcher Button (Dashboard / Tracker) -->
-        <button id="btnTogglePage" type="button"
-          class="h-9 px-2.5 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 active:scale-95 transition-all no-select"
-          title="Swap between Tracking page and Dashboard page">
-          <svg id="viewToggleIcon" xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-400"
-            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 3v18h18" />
-            <path d="m19 9-5 5-4-4-3 3" />
-          </svg>
-          <span id="viewToggleLabel">Dashboard</span>
-        </button>
-
         <!-- Install App Button (Auto-shows when PWA install is ready) -->
         <button id="btnInstallApp" type="button"
           class="hidden h-9 px-2.5 text-xs font-bold rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 flex items-center gap-1 active:scale-95 transition-all no-select"
@@ -250,8 +238,8 @@
           </button>
         </div>
 
-        <!-- Shortcuts Container (Customizable via JS) -->
-        <div id="shortcutsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <!-- Shortcuts Container (3 in a Row, Customizable via JS) -->
+        <div id="shortcutsGrid" class="grid grid-cols-3 gap-2">
           <!-- Populated by JS -->
         </div>
       </section>
@@ -657,27 +645,25 @@
               </div>
             </div>
 
-            <!-- Right: Payment Method (UPI & Cash Only) (5 columns) -->
+            <!-- Right: Payment Method Toggle (UPI & Cash Only) (5 columns) -->
             <div class="col-span-5">
               <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Payment</label>
-              <div id="paymentModeContainer" class="grid grid-cols-2 gap-2 h-13 no-select">
-                <button type="button" data-pay="UPI"
-                  class="pay-chip active h-full rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs">
-                  <svg class="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.5">
+              <div id="paymentToggleGroup" class="relative flex items-center p-1 bg-slate-100 rounded-2xl h-13 border-2 border-slate-200 no-select">
+                <button type="button" data-pay="UPI" id="payToggleUpi"
+                  class="pay-toggle-btn flex-1 h-full rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all bg-emerald-50 text-emerald-900 border-2 border-emerald-500 shadow-xs">
+                  <svg class="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <rect width="14" height="20" x="5" y="2" rx="2" />
                     <path d="M12 18h.01" />
                   </svg>
-                  <span class="text-xs font-black">UPI</span>
+                  <span>UPI</span>
                 </button>
-                <button type="button" data-pay="Cash"
-                  class="pay-chip h-full rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
-                  <svg class="w-4 h-4 text-slate-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2.5">
+                <button type="button" data-pay="Cash" id="payToggleCash"
+                  class="pay-toggle-btn flex-1 h-full rounded-xl font-bold text-xs text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5 transition-all">
+                  <svg class="w-4 h-4 text-slate-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <rect width="20" height="12" x="2" y="6" rx="2" />
                     <circle cx="12" cy="12" r="2" />
                   </svg>
-                  <span class="text-xs font-black">Cash</span>
+                  <span>Cash</span>
                 </button>
               </div>
               <input type="hidden" id="inputPaymentMethod" value="UPI" />
@@ -733,21 +719,37 @@
             </div>
           </div>
 
-          <!-- Row 6: Modal Action Buttons -->
-          <div class="pt-1 flex items-center gap-3">
+          <!-- Row 6: Modal Action Buttons with Qty Stepper in Single Row (Cancel, Qty, Save) -->
+          <div class="pt-1 flex items-center gap-2">
+            <!-- 1. Cancel Button -->
             <button type="button" id="btnCancelExpense"
-              class="flex-1 h-12 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs active:scale-95 transition-all">
+              class="h-12 px-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs active:scale-95 transition-all shrink-0">
               Cancel
             </button>
+
+            <!-- 2. Qty Stepper: [- value +] -->
+            <div class="h-12 px-2 rounded-2xl bg-slate-100 border-2 border-slate-200 flex items-center justify-between gap-1.5 shrink-0 no-select">
+              <button type="button" id="btnQtyMinus" class="w-8 h-8 rounded-xl bg-white hover:bg-slate-200 text-slate-700 active:scale-90 flex items-center justify-center font-black text-sm shadow-xs transition-transform" title="Decrease quantity">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <div class="flex flex-col items-center justify-center min-w-[28px] px-0.5">
+                <span class="text-[8px] uppercase font-bold text-slate-400 leading-none">Qty</span>
+                <span id="displayModalQty" class="text-sm font-black text-slate-900 leading-tight">1</span>
+                <input type="hidden" id="inputQuantity" value="1" />
+              </div>
+              <button type="button" id="btnQtyPlus" class="w-8 h-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white active:scale-90 flex items-center justify-center font-black text-sm shadow-xs transition-transform" title="Increase quantity">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </div>
+
+            <!-- 3. Save Button -->
             <button type="submit" id="btnSaveExpense"
-              class="flex-[2] h-12 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm active:scale-95 transition-all shadow-md shadow-emerald-500/25 flex items-center justify-center gap-2">
-              <svg class="w-4 h-4 stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              class="flex-1 h-12 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-sm active:scale-95 transition-all shadow-md shadow-emerald-500/25 flex items-center justify-center gap-1.5 min-w-0">
+              <svg class="w-4 h-4 stroke-[2.5] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <span id="saveExpenseLabel">Save Expense</span>
+              <span id="saveExpenseLabel" class="truncate">Save Expense</span>
             </button>
-          </div>
-        </form>
           </div>
         </form>
 
@@ -1086,7 +1088,7 @@
     const STORAGE_KEY_EXPENSES = 'expense_plus_cache_v1';
     const STORAGE_KEY_SETTINGS = 'expense_plus_settings_v1';
     const STORAGE_KEY_PENDING_QUEUE = 'expense_plus_pending_queue_v1';
-    const STORAGE_KEY_SHORTCUTS = 'expense_plus_shortcuts_v4';
+    const STORAGE_KEY_SHORTCUTS = 'expense_plus_shortcuts_v6';
 
     // SVG Icons & Colors for 10 Labels (Strictly NO EMOJIS)
     const CATEGORIES = {
@@ -1152,17 +1154,17 @@
       }
     };
 
-    // Default fast shortcuts with labels
+    // Default fast shortcuts with labels (Tea & Coffee default to ₹18)
     const DEFAULT_SHORTCUTS = [
-      { id: 'sc_tea', amount: 15, category: 'Tea', label: 'Tea' },
-      { id: 'sc_coffee', amount: 25, category: 'Coffee', label: 'Coffee' },
-      { id: 'sc_veg', amount: 100, category: 'Veg', label: 'Veg Meal' },
-      { id: 'sc_nveg', amount: 180, category: 'N-Veg', label: 'N-Veg Meal' },
+      { id: 'sc_tea', amount: 18, category: 'Tea', label: 'Tea' },
+      { id: 'sc_coffee', amount: 18, category: 'Coffee', label: 'Coffee' },
+      { id: 'sc_veg', amount: 100, category: 'Veg', label: 'Veg' },
+      { id: 'sc_nveg', amount: 180, category: 'N-Veg', label: 'N-Veg' },
       { id: 'sc_snacks', amount: 40, category: 'Snacks', label: 'Snacks' },
       { id: 'sc_zepto', amount: 250, category: 'Zepto', label: 'Zepto' },
+      { id: 'sc_rent', amount: 5000, category: 'Room rent', label: 'Room rent' },
       { id: 'sc_bus', amount: 25, category: 'Bus', label: 'Bus' },
-      { id: 'sc_rapido', amount: 60, category: 'Rapido', label: 'Rapido' },
-      { id: 'sc_rent', amount: 5000, category: 'Room rent', label: 'Room rent' }
+      { id: 'sc_rapido', amount: 60, category: 'Rapido', label: 'Rapido' }
     ];
 
     let appState = {
@@ -1220,6 +1222,17 @@
     const toastNotification = document.getElementById('toastNotification');
     const toastMsg = document.getElementById('toastMsg');
     const btnInstallApp = document.getElementById('btnInstallApp');
+
+    // Modal Qty & Payment references
+    const displayModalQty = document.getElementById('displayModalQty');
+    const inputQuantity = document.getElementById('inputQuantity');
+    const btnQtyMinus = document.getElementById('btnQtyMinus');
+    const btnQtyPlus = document.getElementById('btnQtyPlus');
+    const payToggleUpi = document.getElementById('payToggleUpi');
+    const payToggleCash = document.getElementById('payToggleCash');
+
+    let modalCurrentQty = 1;
+    let modalUnitPrice = 0;
 
     // -------------------------------------------------------------
     // AUDIO SYNTHESIZER SOUND FX
@@ -1332,7 +1345,7 @@
         bottomToolbar.classList.add('hidden');
         pageModeBadge.innerText = 'Dashboard Mode';
         pageModeBadge.className = 'text-indigo-400 font-bold truncate';
-        viewToggleLabel.innerText = 'Tracker';
+        if (viewToggleLabel) viewToggleLabel.innerText = 'Tracker';
         document.getElementById('logoDotIndicator').className = 'absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-indigo-500 border-2 border-slate-900 shadow-xs animate-pulse';
         renderDashboard();
         showToast('Swapped to Dashboard Page');
@@ -1342,7 +1355,7 @@
         bottomToolbar.classList.remove('hidden');
         pageModeBadge.innerText = 'Tracker Mode';
         pageModeBadge.className = 'text-emerald-400 font-bold truncate';
-        viewToggleLabel.innerText = 'Dashboard';
+        if (viewToggleLabel) viewToggleLabel.innerText = 'Dashboard';
         document.getElementById('logoDotIndicator').className = 'absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-slate-900 shadow-xs';
         renderTracker();
         showToast('Swapped to Expense Tracker');
@@ -1739,10 +1752,17 @@
                   </div>
                 </div>
 
-                <!-- Right: Amount + Actions aligned cleanly -->
-                <div class="flex flex-col items-end shrink-0 gap-1">
+                <!-- Right: Qty Stepper, Amount + Actions -->
+                <div class="flex flex-col items-end shrink-0 gap-1.5">
                   <span class="font-mono text-sm font-black text-slate-900 leading-tight">-${currency}${formatCurrency(exp.amount)}</span>
-                  <div class="flex items-center gap-0.5">
+                  <div class="flex items-center gap-1.5">
+                    <!-- Inline Qty Stepper: [- val +] -->
+                    <div class="flex items-center bg-white px-1.5 py-0.5 rounded-lg border border-slate-200 shadow-xs no-select">
+                      <button type="button" data-log-qty-minus="${exp.id}" class="btn-log-qty-minus w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-black text-xs active:scale-90 transition-transform leading-none" title="Decrease quantity">-</button>
+                      <span class="font-extrabold text-[11px] px-1.5 text-slate-800 min-w-[14px] text-center">${exp.quantity || 1}</span>
+                      <button type="button" data-log-qty-plus="${exp.id}" class="btn-log-qty-plus w-5 h-5 rounded bg-emerald-100 hover:bg-emerald-200 text-emerald-800 flex items-center justify-center font-black text-xs active:scale-90 transition-transform leading-none" title="Increase quantity">+</button>
+                    </div>
+
                     <button data-edit-id="${exp.id}" class="btn-edit-exp p-1 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors" title="Edit Expense">
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
@@ -1763,6 +1783,46 @@
         });
 
         transactionsContainer.innerHTML = html;
+
+        document.querySelectorAll('.btn-log-qty-plus').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-log-qty-plus');
+            const exp = appState.expenses.find(x => x.id === id);
+            if (!exp) return;
+            const currentQty = parseInt(exp.quantity) || 1;
+            const unitPrice = (parseFloat(exp.amount) || 0) / currentQty;
+            const newQty = currentQty + 1;
+            exp.quantity = newQty;
+            exp.amount = parseFloat((unitPrice * newQty).toFixed(2));
+            saveLocalExpenses();
+            renderTracker();
+            enqueueOfflineAction(exp);
+            playBeep('tap');
+            if (navigator.onLine) flushPendingQueue();
+          });
+        });
+
+        document.querySelectorAll('.btn-log-qty-minus').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.getAttribute('data-log-qty-minus');
+            const exp = appState.expenses.find(x => x.id === id);
+            if (!exp) return;
+            const currentQty = parseInt(exp.quantity) || 1;
+            if (currentQty > 1) {
+              const unitPrice = (parseFloat(exp.amount) || 0) / currentQty;
+              const newQty = currentQty - 1;
+              exp.quantity = newQty;
+              exp.amount = parseFloat((unitPrice * newQty).toFixed(2));
+              saveLocalExpenses();
+              renderTracker();
+              enqueueOfflineAction(exp);
+              playBeep('tap');
+              if (navigator.onLine) flushPendingQueue();
+            } else {
+              deleteExpense(id);
+            }
+          });
+        });
 
         document.querySelectorAll('.btn-edit-exp').forEach(btn => {
           btn.addEventListener('click', () => openEditModal(btn.getAttribute('data-edit-id')));
@@ -2117,8 +2177,15 @@
       saveExpenseLabel.innerText = 'Save Expense';
       editExpenseId.value = '';
 
+      modalCurrentQty = parseInt(prefill.quantity) || 1;
+      inputQuantity.value = modalCurrentQty;
+      displayModalQty.innerText = modalCurrentQty;
+
       const now = new Date();
-      inputAmount.value = prefill.amount || '';
+      inputAmount.value = prefill.amount !== undefined ? prefill.amount : '';
+      const initAmt = parseFloat(inputAmount.value) || 0;
+      modalUnitPrice = initAmt > 0 ? (initAmt / modalCurrentQty) : 0;
+
       inputNotes.value = prefill.notes || '';
       inputDate.value = prefill.date || now.toISOString().split('T')[0];
       inputTime.value = prefill.time || now.toTimeString().substring(0, 5);
@@ -2126,13 +2193,16 @@
       setCategoryActive(prefill.category || 'Tea');
       setPaymentActive(prefill.paymentMethod || 'UPI');
 
+      try {
+        history.pushState({ modalOpen: 'expenseModal' }, '');
+      } catch (e) {}
+
       expenseModal.classList.remove('opacity-0', 'pointer-events-none');
       expenseModal.classList.add('opacity-100');
       const drawer = expenseModal.firstElementChild;
       drawer.classList.remove('scale-95');
       drawer.classList.add('scale-100');
 
-      setTimeout(() => inputAmount.focus(), 150);
       playBeep('tap');
     }
 
@@ -2144,7 +2214,13 @@
       saveExpenseLabel.innerText = 'Update Expense';
       editExpenseId.value = exp.id;
 
+      modalCurrentQty = parseInt(exp.quantity) || 1;
+      inputQuantity.value = modalCurrentQty;
+      displayModalQty.innerText = modalCurrentQty;
+
       inputAmount.value = exp.amount;
+      modalUnitPrice = (parseFloat(exp.amount) || 0) / modalCurrentQty;
+
       inputNotes.value = exp.notes || '';
       inputDate.value = exp.date;
       inputTime.value = exp.time || '12:00';
@@ -2152,17 +2228,23 @@
       setCategoryActive(exp.category || 'Tea');
       setPaymentActive(exp.paymentMethod || 'UPI');
 
+      try {
+        history.pushState({ modalOpen: 'expenseModal' }, '');
+      } catch (e) {}
+
       expenseModal.classList.remove('opacity-0', 'pointer-events-none');
       expenseModal.classList.add('opacity-100');
       const drawer = expenseModal.firstElementChild;
       drawer.classList.remove('scale-95');
       drawer.classList.add('scale-100');
 
-      setTimeout(() => inputAmount.focus(), 150);
       playBeep('tap');
     }
 
-    function closeExpenseModal() {
+    function closeExpenseModal(fromHistory = false) {
+      if (!fromHistory && history.state && history.state.modalOpen === 'expenseModal') {
+        try { history.back(); } catch (e) {}
+      }
       expenseModal.classList.remove('opacity-100');
       expenseModal.classList.add('opacity-0', 'pointer-events-none');
       const drawer = expenseModal.firstElementChild;
@@ -2184,13 +2266,15 @@
     function setPaymentActive(pay) {
       const mode = (pay === 'Cash') ? 'Cash' : 'UPI';
       inputPaymentMethod.value = mode;
-      document.querySelectorAll('.pay-chip').forEach(btn => {
-        if (btn.getAttribute('data-pay') === mode) {
-          btn.className = 'pay-chip active h-full rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs';
+      if (payToggleUpi && payToggleCash) {
+        if (mode === 'UPI') {
+          payToggleUpi.className = 'pay-toggle-btn flex-1 h-full rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all bg-emerald-50 text-emerald-900 border-2 border-emerald-500 shadow-xs';
+          payToggleCash.className = 'pay-toggle-btn flex-1 h-full rounded-xl font-bold text-xs text-slate-500 hover:text-slate-800 border-2 border-transparent bg-transparent flex items-center justify-center gap-1.5 transition-all';
         } else {
-          btn.className = 'pay-chip h-full rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition-all';
+          payToggleUpi.className = 'pay-toggle-btn flex-1 h-full rounded-xl font-bold text-xs text-slate-500 hover:text-slate-800 border-2 border-transparent bg-transparent flex items-center justify-center gap-1.5 transition-all';
+          payToggleCash.className = 'pay-toggle-btn flex-1 h-full rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition-all bg-emerald-50 text-emerald-900 border-2 border-emerald-500 shadow-xs';
         }
-      });
+      }
     }
 
     async function handleExpenseSubmit(e) {
@@ -2201,12 +2285,14 @@
         return;
       }
 
+      const expQty = parseInt(inputQuantity.value) || 1;
       const id = editExpenseId.value || `exp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const expData = {
         id,
         userName: USER_NAME,
         amount: amt,
-        category: inputCategory.value || 'Food',
+        quantity: expQty,
+        category: inputCategory.value || 'Tea',
         paymentMethod: inputPaymentMethod.value || 'UPI',
         notes: inputNotes.value.trim(),
         date: inputDate.value || new Date().toISOString().split('T')[0],
@@ -2259,13 +2345,19 @@
 
     function openManageShortcutsModal() {
       renderManageShortcutsList();
+      try {
+        history.pushState({ modalOpen: 'manageShortcutsModal' }, '');
+      } catch (e) {}
       manageShortcutsModal.classList.remove('opacity-0', 'pointer-events-none');
       manageShortcutsModal.firstElementChild.classList.remove('scale-95');
       manageShortcutsModal.firstElementChild.classList.add('scale-100');
       playBeep('tap');
     }
 
-    function closeManageShortcutsModal() {
+    function closeManageShortcutsModal(fromHistory = false) {
+      if (!fromHistory && history.state && history.state.modalOpen === 'manageShortcutsModal') {
+        try { history.back(); } catch (e) {}
+      }
       manageShortcutsModal.classList.add('opacity-0', 'pointer-events-none');
       manageShortcutsModal.firstElementChild.classList.add('scale-95');
     }
@@ -2318,8 +2410,8 @@
       brandHeader.addEventListener('click', handleLogoTap);
       brandHeader.addEventListener('dblclick', () => togglePageView());
 
-      // 2. View Switcher Pill in Header
-      btnTogglePage.addEventListener('click', () => togglePageView());
+      // 2. View Switcher Pill in Header (if present)
+      if (btnTogglePage) btnTogglePage.addEventListener('click', () => togglePageView());
 
       // 3. Return to Tracker buttons on Dashboard
       btnBackToTracker.addEventListener('click', () => togglePageView('tracker'));
@@ -2327,23 +2419,77 @@
 
       // 4. Modal Open / Close
       document.getElementById('btnOpenAddModal').addEventListener('click', () => openAddModal());
-      document.getElementById('btnCloseExpenseModal').addEventListener('click', closeExpenseModal);
-      document.getElementById('btnCancelExpense').addEventListener('click', closeExpenseModal);
+      document.getElementById('btnCloseExpenseModal').addEventListener('click', () => closeExpenseModal());
+      document.getElementById('btnCancelExpense').addEventListener('click', () => closeExpenseModal());
       document.getElementById('expenseForm').addEventListener('submit', handleExpenseSubmit);
+
+      // Modal Quantity Stepper: [- val +]
+      if (btnQtyPlus) {
+        btnQtyPlus.addEventListener('click', () => {
+          modalCurrentQty++;
+          inputQuantity.value = modalCurrentQty;
+          displayModalQty.innerText = modalCurrentQty;
+          if (modalUnitPrice > 0) {
+            inputAmount.value = (modalUnitPrice * modalCurrentQty).toFixed(2);
+          }
+          playBeep('tap');
+        });
+      }
+
+      if (btnQtyMinus) {
+        btnQtyMinus.addEventListener('click', () => {
+          if (modalCurrentQty > 1) {
+            modalCurrentQty--;
+            inputQuantity.value = modalCurrentQty;
+            displayModalQty.innerText = modalCurrentQty;
+            if (modalUnitPrice > 0) {
+              inputAmount.value = (modalUnitPrice * modalCurrentQty).toFixed(2);
+            }
+            playBeep('tap');
+          }
+        });
+      }
+
+      inputAmount.addEventListener('input', () => {
+        const val = parseFloat(inputAmount.value) || 0;
+        if (modalCurrentQty > 0) {
+          modalUnitPrice = val / modalCurrentQty;
+        }
+      });
+
+      // Browser / Hardware Back Button Listener (Closes Modal without exiting)
+      window.addEventListener('popstate', () => {
+        if (expenseModal && !expenseModal.classList.contains('pointer-events-none')) {
+          closeExpenseModal(true);
+        }
+        if (manageShortcutsModal && !manageShortcutsModal.classList.contains('pointer-events-none')) {
+          closeManageShortcutsModal(true);
+        }
+        if (searchModal && !searchModal.classList.contains('pointer-events-none')) {
+          searchModal.classList.add('opacity-0', 'pointer-events-none');
+        }
+        if (settingsModal && !settingsModal.classList.contains('pointer-events-none')) {
+          settingsModal.classList.add('opacity-0', 'pointer-events-none');
+        }
+      });
 
       // Amount increment chips inside modal
       document.querySelectorAll('.btn-amt-chip').forEach(btn => {
         btn.addEventListener('click', () => {
           const add = parseFloat(btn.getAttribute('data-add-amt')) || 0;
           const curr = parseFloat(inputAmount.value) || 0;
-          inputAmount.value = (curr + add).toFixed(2);
+          const totalAmt = (curr + add).toFixed(2);
+          inputAmount.value = totalAmt;
+          if (modalCurrentQty > 0) {
+            modalUnitPrice = parseFloat(totalAmt) / modalCurrentQty;
+          }
           playBeep('tap');
         });
       });
 
       document.getElementById('btnClearAmt').addEventListener('click', () => {
         inputAmount.value = '';
-        inputAmount.focus();
+        modalUnitPrice = 0;
         playBeep('tap');
       });
 
@@ -2359,7 +2505,19 @@
         playBeep('tap');
       });
 
-      // Payment Mode Chips
+      // Payment Mode Toggle Buttons (UPI & Cash)
+      if (payToggleUpi) {
+        payToggleUpi.addEventListener('click', () => {
+          setPaymentActive('UPI');
+          playBeep('tap');
+        });
+      }
+      if (payToggleCash) {
+        payToggleCash.addEventListener('click', () => {
+          setPaymentActive('Cash');
+          playBeep('tap');
+        });
+      }
       document.querySelectorAll('.pay-chip').forEach(btn => {
         btn.addEventListener('click', () => {
           setPaymentActive(btn.getAttribute('data-pay'));

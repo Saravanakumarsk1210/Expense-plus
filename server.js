@@ -301,6 +301,7 @@ app.get('/api/expenses', async (req, res) => {
         notes, 
         TO_CHAR(date, 'YYYY-MM-DD') AS "date", 
         time, 
+        COALESCE(quantity, 1)::int AS "quantity",
         created_at AS "createdAt", 
         updated_at AS "updatedAt"
       FROM expenses
@@ -318,6 +319,7 @@ app.get('/api/expenses', async (req, res) => {
         notes, 
         TO_CHAR(date, 'YYYY-MM-DD') AS "date", 
         time, 
+        COALESCE(quantity, 1)::int AS "quantity",
         created_at AS "createdAt", 
         updated_at AS "updatedAt"
       FROM expenses
@@ -476,7 +478,7 @@ app.post('/api/expenses', async (req, res) => {
   try {
     if (!sql) throw new Error('DB offline');
 
-    const { id, amount, category, payment_method, paymentMethod, notes, date, time } = req.body;
+    const { id, amount, category, payment_method, paymentMethod, notes, date, time, quantity } = req.body;
     
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
       return res.status(400).json({ error: 'Valid amount is required' });
@@ -488,9 +490,10 @@ app.post('/api/expenses', async (req, res) => {
     const noteText = notes || '';
     const expDate = date || new Date().toISOString().split('T')[0];
     const expTime = time || new Date().toTimeString().substring(0, 5);
+    const expQty = parseInt(quantity) > 0 ? parseInt(quantity) : 1;
 
     await sql`
-      INSERT INTO expenses (id, user_name, amount, category, payment_method, notes, date, time, created_at, updated_at)
+      INSERT INTO expenses (id, user_name, amount, category, payment_method, notes, date, time, quantity, created_at, updated_at)
       VALUES (
         ${expId},
         ${USER_NAME},
@@ -500,6 +503,7 @@ app.post('/api/expenses', async (req, res) => {
         ${noteText},
         ${expDate},
         ${expTime},
+        ${expQty},
         NOW(),
         NOW()
       )
@@ -510,6 +514,7 @@ app.post('/api/expenses', async (req, res) => {
         notes = EXCLUDED.notes,
         date = EXCLUDED.date,
         time = EXCLUDED.time,
+        quantity = EXCLUDED.quantity,
         updated_at = NOW()
     `;
 
@@ -524,6 +529,7 @@ app.post('/api/expenses', async (req, res) => {
         notes: noteText,
         date: expDate,
         time: expTime,
+        quantity: expQty,
         createdAt: new Date().toISOString()
       }
     });
@@ -538,13 +544,14 @@ app.put('/api/expenses/:id', async (req, res) => {
     if (!sql) throw new Error('DB offline');
 
     const { id } = req.params;
-    const { amount, category, payment_method, paymentMethod, notes, date, time } = req.body;
+    const { amount, category, payment_method, paymentMethod, notes, date, time, quantity } = req.body;
 
     const cat = category || 'Other';
     const payMode = paymentMethod || payment_method || 'UPI';
     const noteText = notes || '';
     const expDate = date || new Date().toISOString().split('T')[0];
     const expTime = time || new Date().toTimeString().substring(0, 5);
+    const expQty = parseInt(quantity) > 0 ? parseInt(quantity) : 1;
 
     await sql`
       UPDATE expenses
@@ -555,6 +562,7 @@ app.put('/api/expenses/:id', async (req, res) => {
         notes = ${noteText},
         date = ${expDate},
         time = ${expTime},
+        quantity = ${expQty},
         updated_at = NOW()
       WHERE id = ${id} AND user_name = ${USER_NAME}
     `;
@@ -623,9 +631,10 @@ app.post('/api/expenses/sync', async (req, res) => {
         const noteText = item.notes || '';
         const expDate = item.date || new Date().toISOString().split('T')[0];
         const expTime = item.time || '12:00';
+        const expQty = parseInt(item.quantity) > 0 ? parseInt(item.quantity) : 1;
 
         await sql`
-          INSERT INTO expenses (id, user_name, amount, category, payment_method, notes, date, time, created_at, updated_at)
+          INSERT INTO expenses (id, user_name, amount, category, payment_method, notes, date, time, quantity, created_at, updated_at)
           VALUES (
             ${expId},
             ${USER_NAME},
@@ -635,6 +644,7 @@ app.post('/api/expenses/sync', async (req, res) => {
             ${noteText},
             ${expDate},
             ${expTime},
+            ${expQty},
             NOW(),
             NOW()
           )
@@ -645,6 +655,7 @@ app.post('/api/expenses/sync', async (req, res) => {
             notes = EXCLUDED.notes,
             date = EXCLUDED.date,
             time = EXCLUDED.time,
+            quantity = EXCLUDED.quantity,
             updated_at = NOW()
         `;
         syncedCount++;
