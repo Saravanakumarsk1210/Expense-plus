@@ -250,7 +250,7 @@ app.put('/api/settings', async (req, res) => {
   try {
     if (!sql) throw new Error('DB offline');
     const { currency, dailyBudget, monthlyBudget, soundEnabled } = req.body;
-    
+
     await sql`
       INSERT INTO user_settings (user_name, currency, daily_budget, monthly_budget, sound_enabled, updated_at)
       VALUES (
@@ -342,7 +342,7 @@ app.get('/api/expenses', async (req, res) => {
 
     if (search && search.trim()) {
       const q = search.trim().toLowerCase();
-      filtered = filtered.filter(item => 
+      filtered = filtered.filter(item =>
         (item.notes && item.notes.toLowerCase().includes(q)) ||
         (item.category && item.category.toLowerCase().includes(q)) ||
         (item.paymentMethod && item.paymentMethod.toLowerCase().includes(q)) ||
@@ -371,7 +371,7 @@ app.get('/api/expenses/summary', async (req, res) => {
     if (!sql) throw new Error('DB offline');
 
     const clientDateStr = req.query.date || new Date().toISOString().split('T')[0];
-    
+
     // Fetch all records for SARAVANA to produce rich analytics
     const allExpenses = await sql`
       SELECT 
@@ -391,7 +391,7 @@ app.get('/api/expenses/summary', async (req, res) => {
     // Compute metrics
     const now = new Date(clientDateStr + 'T12:00:00Z');
     const todayStr = clientDateStr;
-    
+
     // Start of week (Monday)
     const dayOfWeek = (now.getUTCDay() + 6) % 7; // 0 = Mon, 6 = Sun
     const startOfWeek = new Date(now);
@@ -479,7 +479,7 @@ app.post('/api/expenses', async (req, res) => {
     if (!sql) throw new Error('DB offline');
 
     const { id, amount, category, payment_method, paymentMethod, notes, date, time, quantity } = req.body;
-    
+
     if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
       return res.status(400).json({ error: 'Valid amount is required' });
     }
